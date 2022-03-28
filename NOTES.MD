@@ -158,6 +158,10 @@ n3 := s1[2:5]     // addr: 0x10 (2*8 bytes) n1=[3,4,5] len(s1)=3 cap(s1)=3
 **Copy slice:**
 ```golang
 src := []int{1,2,3}
+dst := src                    // this only copies the slice header
+
+// To really copy a slice
+src := []int{1,2,3}
 dst := make([]int, len(src))  // if len is 0, nothing is copied
 nn := copy(dst, src)          // nn is the number of elements copied
 ```
@@ -441,6 +445,9 @@ if (s1 == s2) {                   // Can compare 2 strings
 **Cloning Map**
 ```golang
 m1 := map[string]int{"A": 40, "B":25}
+m2 := m1                               // This only copies the map header
+
+m1 := map[string]int{"A": 40, "B":25}
 m2 := make(map[string]int)	           // create another map
 for k,v := range m1 {                  // clone by copying each key/value
   m2[k] = v
@@ -448,3 +455,396 @@ for k,v := range m1 {                  // clone by copying each key/value
 ```
 
 # Structs
+**Creating Struct**
+```golang
+// Defining a struct
+type s1 struct {
+  f1 string
+  f2 int
+  f3, f4 string
+}
+
+// Initializing a struct
+myS1 := s1{"xx", 22, "yy", "zz"}  // just by order (not a good way)
+myS1 := s1{f1: "xx", f2: 22, f3: "yy", f4: "zz"}  // by field name, (good)
+myS1 := s1{f1: "xx"}     // init only f1, the rest are 0 and empty string
+
+
+// Anonymous struct, not from a type
+myS2 := struct {
+  f1     string
+  f2     int
+  f3, f4 string
+}{
+  f1: "xx",
+  f2: 22,
+  f3: "yy",
+  f4: "zz",
+}
+```
+
+**Retrieving / Updating Struct**
+```golang
+type s1 struct {
+  f1 string
+  f2 int
+  f3, f4 string
+}
+
+// Retrieving values
+myS1 := s1{f1: "xx"} 
+field1 := myS1.f1                // field1="xx"
+field1 := myS1.nonExistingField  // Error
+
+// Updating values
+myS1.f2 = 12
+```
+
+**Comparing Struct**
+```golang
+myS1 := s1{f1: "xx", f2: 22, f3: "yy", f4: "zz"}
+myS2 := s1{f1: "xx", f2: 22, f3: "yy", f4: "zz"}
+result := myS1 == myS2     // true
+```
+
+**Copying a Struct**
+```golang
+myS1 := s1{f1: "xx", f2: 22, f3: "yy", f4: "zz"}
+myS2 := myS1        // this copies the entire myS1 struct over to myS2
+```
+
+**Embedded Struct**
+```golang
+type embedded struct {
+  ef1 string
+  ef2 int
+}
+
+type s1 struct {
+  f1         string
+  f2         int
+  embeddedF3 embedded
+}
+
+myS1 := s1{
+  f1: "xx",
+  f2: 22,
+  embeddedF3: embedded{
+    ef1: "yy",
+    ef2: 33,
+  },
+}
+
+result := myS1.embeddedF3.ef1      // retrieving
+myS1.embeddedF3.ef1 = "zz"         // setting
+
+```
+
+**Bonus: Anonymous Struct Fields**
+```golang
+type s1 struct {
+  f1 string
+  int
+}
+
+as1 := s1{"xx", 22}        // Error if you do s1{f1:"xx", 22}
+result := as1.f1           // "xx"
+as1.f1 = "yy"
+```
+
+# Functions
+- No Function overloading
+- Use camelCase
+- No Default arguments in GoLang
+- Arguments passed by value
+
+**Function, arguments and return type**
+```golang
+func f1() {
+}
+
+func f1(a1 int, a2 int) {
+}
+
+func f2(a1, a2 int) {           // shorthand arguments
+}
+
+func f2(a1, a2 int) float64 {   // returning a float64
+}
+
+func f2(a1, a2 int) (int, int) {   // returning multiple values
+}
+
+func f2(a1, a2 int) (s int) {   // s is a named return value
+  s = a1 + a2
+  return                        // this is called returning a naked value
+}
+
+```
+
+**Variadic Functions - 0 or more args**
+```golang
+func f1(a1 ...int) {
+	fmt.Printf("%#v\n", a1)  // a1 is represented as an int slice
+}
+
+f1(1, 2, 3, 4)   // a1 arg is []int{1, 2, 3, 4}
+f1()             // a1 arg is []int(nil)
+
+args := []int{1, 2, 3, 4}
+f1(args...)      // a1 arg is []int{1, 2, 3, 4}
+
+// NOTE: Only the last arg can be variadic
+func f1(a1 string, a2 ...int) {
+}
+```
+
+**Variadic Functions - modifying passed in arg's value**
+```golang
+func f1(a1 ...int) {
+  a1[0] = 88               // modifying arg 0's value
+}
+
+args := []int{1, 2, 3, 4}
+f1(args...)                // args is a slice which is passed in as a ref
+result := args             // []int{88, 2, 3, 4}
+```
+
+**Defer statement and LIFO**
+```golang
+func f1() {
+	fmt.Println("f1")
+}
+
+func f2() {
+	fmt.Println("f2")
+}
+
+func f3() {
+	fmt.Println("f3")
+}
+
+func f4() {
+	fmt.Println("f4")
+}
+
+func main() {
+	defer f1()     // defer works like a stack, f1()
+	f2()
+	f3()
+	defer f4()     // f4() is now at the top of the stack
+}
+
+// Output:
+// f2
+// f3
+// f4            // f4() is executed first before f1() 
+// f1            // because it's at the top of the stack
+```
+
+**Anonymous Functions**
+```golang
+func(msg string) {      // anonymous func has no name so we have to
+  fmt.Println(msg)      // self executing it.
+}("Anonymous function!")         
+
+// Create a function that return a function
+func increment(x int) func() int {
+	return func() int {    // Returning a function that returns an int
+		x++
+		return x
+	}
+}
+
+// To execute:
+incrementFunc := increment(5)
+result := incrementFunc()         // result=6
+result := incrementFunc()         // result=7
+result := incrementFunc()         // result=8
+```
+
+# Pointers
+- A pointer is a variable that stores an address of another variable
+- GoLang does not support pointer arithmetic.
+
+**Pointer illustration**
+```ocaml
+PointerA (at 0xE020)         |---->    VariableA (at 0x10250)
+value: 0x10250         -------         value: "Batman"
+```
+
+**Pointer and address**
+```golang
+v := "Batman"
+result := &v                           // &v = get the addr of v
+fmt.Printf("%T %v\n", result, result)  // *string 0x10250
+fmt.Printf("%p\n", result)      // %p = pointer, addr of the var: 0x10250
+fmt.Printf("%p\n", &result)     // Addr of the pointer 0xE020
+
+// Create a pointer without assigning anything to it
+var ptr1 *float64                   // * in front of type means pointer type
+fmt.Printf("%v %p\n", ptr1, &ptr1)  // nil, 0xABCD
+
+// Create a pointer with a new keyword
+ptr1 := new(int)
+x := 100
+ptr1 = &x
+fmt.Printf("%T %v\n", ptr1, ptr1)   // *int 0xABCD
+fmt.Printf("Addr of x: %p\n", &x)   // Addr of x: 0xABCD
+
+*ptr1 = 33      // Change the value via pointer, same as x = 33
+                // * in front of a variable means dereferencing
+```
+
+**A Pointer to a Pointer**
+```ocaml
+pp1 (at 0x1111)     |----> p1 (at 0xBBBB)     |-----> v (at 0x2222)
+value: 0xBBBB   -----      value: 0x2222  -----       value: "Batman"
+```
+```golang
+v := "Batman"
+p1 := &v
+pp1 := &p1
+print("val of p1: %v, addr of p1: %v\n", p1, &p1)     // 0x2222 0xBBBB
+print("val of pp1: %v, addr of pp1: %v\n", pp1, &pp1) // 0xBBBB 0x1111
+
+// Dereferencing the pointers
+fmt.Printf("*p1 is %v\n", *p1)         // "Batman"
+fmt.Printf("*pp1 is %v\n", *pp1)       // 0x2222
+
+// Double dereferencing
+fmt.Printf("**pp1 is %v\n", **pp1)     // "Batman"
+```
+
+**Comparing pointers**
+```golang
+v := "Batman"
+p1 := &v
+x := "Batman"
+p2 := &x
+p3 := &x
+
+result := p1 == p2  // false, p1 and p2 are pointing to a diff var
+result := p3 == p2  // true, p2 and p3 are pointing to the same var
+```
+
+**Passing pointers to function**
+```golang
+// char int, float, bool, string, struct are value types
+// Need to pass by pointer to modify in a function
+func change(p *int) {
+	*p = 888
+}
+
+func main() {
+	x := 10
+	p := &x
+	change(p)
+	fmt.Printf("After change: %v\n", *p)    // 888
+}
+```
+
+**Passing pointer->struct to function (Shortcut on struct)**
+```golang
+type product struct {
+	name string
+	amt  int
+}
+
+func changeProduct(p *product) {
+	(*p).name = "blah"
+	p.amt = 888        // Shortcut. p.amt is the same as (*p).amt
+}
+
+func main() {
+	prod := product{
+		name: "Game",
+		amt:  25,
+	}
+
+	changeProduct(&prod)
+	fmt.Println(prod)
+}
+```
+
+
+**Passing Slice and Map to function**
+```golang
+// char, int, float, bool, string, struct are value types
+// slice and map are reference type
+func changeSlice(s []int) {
+	for i := range s {
+		s[i]++
+	}
+}
+
+func changeMap(m map[string]int) {
+	m["a"] = 11
+	m["b"] = 12
+	m["c"] = 13
+}
+
+func main() {
+	// Slice
+	s := []int{1, 2, 3}
+	changeSlice(s)
+	fmt.Println(s)              // []int{2,3,4}
+
+	// Map
+	m := map[string]int{"a": 1, "b": 2, "c": 3}
+	changeMap(m)
+	fmt.Println(m)              // map[a:11 b:12 c:13]
+}
+
+```
+
+# Methods and Interfaces
+- Receiver type cannot be a pointer type or interface type
+  - No *bool, *int, *float, *string types, etc...
+  - Map and Slice are a reference type but that is OK.
+  
+**Receiver Method**
+```golang
+type names []string
+
+// Receiver method
+func (n names) print() {
+	for i, name := range n {
+		fmt.Printf("%d %s\n", i, name)
+	}
+}
+
+func main() {
+	friends := names{"Tony", "Steve"}
+	friends.print()      // receiver method (option 1)
+	names.print(friends) // or receiver function (option 2)
+}
+```
+
+**Receiver Method with a Point Receiver**
+```golang
+type car struct {
+	brand string
+	price int
+}
+
+// Recommendation:
+// Use pointer receiver if we want to change the data or
+// if the data is large
+func (c *car) changeCar(newBrand string, newPrice int) {
+	// With pointer receiver (car is a struct), GoLang is smart 
+	// enough to automatically switch from c.brand to (*c).brand
+	c.brand = newBrand
+	c.price = newPrice
+}
+
+func main() {
+	myCar := car{brand: "Toyota", price: 32000}
+
+	// With pointer receiver, GoLang is smart enough
+	// to automatically switch from myCar.changeCar() to 
+    // (&myCar).changeCar()
+	myCar.changeCar("Tesla", 60000)
+	fmt.Println(myCar)
+}
+```
