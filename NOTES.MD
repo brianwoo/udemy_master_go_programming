@@ -194,20 +194,20 @@ func main() {
 	for i := 0; i < maxValue; i++ {
 		if i%2 == 0 {
 			fmt.Printf("appending '%d': %s   %s\n", i, getSliceHeader(&result), getSliceHeader(&result2))
-      // Appending to result, change the len.
-      // Note that len in result2 is NOT changing, even though 
-      // result and result2 are pointing to the same
-      // backing array adress.
+            // Appending to result, change the len.
+            // Note that len in result2 is NOT changing, even though 
+            // result and result2 are pointing to the same
+            // backing array adress.
 			result = append(result, i)
-			fmt.Printf("appended '%d': %s   %s\n", i,	getSliceHeader(&result), getSliceHeader(&result2))
+			fmt.Printf("appended '%d': %s   %s\n", i, getSliceHeader(&result), getSliceHeader(&result2))
 		}
 	}
 
-  // Even though result and result2 are 
-  // pointing to the same backing array adress,
-  // result2 Len remains the same when appending to result.
-  // This explains why result and result2 are different
-  // when they are printed out.
+    // Even though result and result2 are 
+    // pointing to the same backing array adress,
+    // result2 Len remains the same when appending to result.
+    // This explains why result and result2 are different
+    // when they are printed out.
 	fmt.Println(result)
 	fmt.Println(result2)
 }
