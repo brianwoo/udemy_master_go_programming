@@ -193,17 +193,13 @@ func main() {
 	result2 := result
 	for i := 0; i < maxValue; i++ {
 		if i%2 == 0 {
-			fmt.Printf("appending '%d': %s   %s\n", i,
-				getSliceHeader(&result),
-				getSliceHeader(&result2))
+			fmt.Printf("appending '%d': %s   %s\n", i, getSliceHeader(&result), getSliceHeader(&result2))
       // Appending to result, change the len.
       // Note that len in result2 is NOT changing, even though 
       // result and result2 are pointing to the same
       // backing array adress.
 			result = append(result, i)
-			fmt.Printf("appended '%d': %s   %s\n", i,
-				getSliceHeader(&result),
-				getSliceHeader(&result2))
+			fmt.Printf("appended '%d': %s   %s\n", i,	getSliceHeader(&result), getSliceHeader(&result2))
 		}
 	}
 
