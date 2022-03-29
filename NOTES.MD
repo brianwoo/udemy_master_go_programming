@@ -222,7 +222,7 @@ func getSliceHeader(slice *[]int) string {
 	return fmt.Sprintf("%+v", sh)
 }
 
-/*
+
 Output:
 appending '0': &{Data:824634777600 Len:1 Cap:20}   &{Data:824634777600 Len:1 Cap:20}
 appended '0': &{Data:824634777600 Len:2 Cap:20}   &{Data:824634777600 Len:1 Cap:20}
@@ -246,7 +246,6 @@ appending '18': &{Data:824634777600 Len:10 Cap:20}   &{Data:824634777600 Len:1 C
 appended '18': &{Data:824634777600 Len:11 Cap:20}   &{Data:824634777600 Len:1 Cap:20}
 [88 0 2 4 6 8 10 12 14 16 18]
 [88]
-*/
 
 ```
 
@@ -635,11 +634,11 @@ func main() {
 	defer f4()     // f4() is now at the top of the stack
 }
 
-// Output:
-// f2
-// f3
-// f4            // f4() is executed first before f1() 
-// f1            // because it's at the top of the stack
+Output:
+f2
+f3
+f4            // f4() is executed first before f1() 
+f1            // because it's at the top of the stack
 ```
 
 **Anonymous Functions**
@@ -847,4 +846,350 @@ func main() {
 	myCar.changeCar("Tesla", 60000)
 	fmt.Println(myCar)
 }
+```
+
+**Interfaces**
+- Unlike Java, you don't have to explicitly implement an interface. If a type implements all the interface methods, it's implemented the interface.
+```golang
+type shape interface {
+	area() float64
+	perimeter() float64
+}
+
+type circle struct {
+	radius float64
+}
+
+type rectangle struct {
+	width, height float64
+}
+
+func print(s shape) {
+	fmt.Println(s)
+	fmt.Println(s.area())
+	fmt.Println(s.perimeter())
+}
+
+func (c circle) area() float64         { return pi * c.radius * c.radius }
+func (c circle) perimeter() float64    { return 2 * pi * c.radius }
+func (r rectangle) area() float64      { return r.width * r.height }
+func (r rectangle) perimeter() float64 { return 2*r.width + 2*r.height }
+
+func main() {
+	c := circle{radius: 5.0}
+	r := rectangle{width: 4, height: 3}
+	print(c)
+	print(r)
+}
+```
+
+**Type Assertions - brings out the concrete type underlying the interface**
+```golang
+type shape interface {
+	area() float64
+	perimeter() float64
+}
+
+type circle struct{ radius float64 }
+type rectangle struct{ width, height float64 }
+
+func (c circle) area() float64         { return pi * c.radius * c.radius }
+func (c circle) perimeter() float64    { return 2 * pi * c.radius }
+func (r rectangle) area() float64      { return r.width * r.height }
+func (r rectangle) perimeter() float64 { return 2*r.width + 2*r.height }
+
+// volume() exists for circle but not in interface
+func (c circle) volume() float64       { return 1.3 * pi * math.Pow(c.radius, 3) }
+
+func main() {
+	var c shape = circle{radius: 5.0}
+	var r shape = rectangle{width: 4, height: 3}
+
+	r.area()
+
+    // c.volume()       // Even though there is a method volume(), shape
+                        // can't access the method because it's not listed
+                        // in the interface.
+	c.(circle).volume() // To access the method, we need Type Assertion
+
+  // More sophisticated way: check before calling volume()
+  circle, ok := c.(circle)
+	if ok == true {
+		circle.volume()
+	}
+}
+```
+
+**Type Switches - like a regular switch but for types**
+```golang
+type shape interface {
+	area() float64
+	perimeter() float64
+}
+
+func main() {
+  var c shape = circle{radius: 5.0}
+
+  switch value := c.(type) {   // type is a keyword
+  case circle:
+    fmt.Printf("%#v has circle type\n", value)
+  case rectangle:
+    fmt.Printf("%#v has rectangle type\n", value)
+  }
+}
+```
+
+**Embedded Interfaces - to get around an interface extends other interfaces**
+```golang
+type shape interface {
+	area()
+}
+
+type color interface {
+	color()
+}
+
+// shape and color are embedded in allFeatures
+type allFeatures interface {
+	shape
+	color
+	otherMethod()
+}
+
+type circle struct{ radius float64 }
+
+// Implement all required methods for allFeatures
+func (c circle) area()  {}
+func (c circle) color() {}
+func (c circle) otherMethod() {}
+
+func print(a allFeatures) {}
+
+func main() {
+	var c = circle{radius: 5.0}
+	print(c)     // because we have implemented all allFeatures methods,
+	             // circle can be passed to the print which expects
+	             // an allFeatures object.
+}
+```
+
+**Empty Interface - an interface that can store any value**
+- it cannot use operations which take a concrete type as an arg to take an empty interface
+- To use an operation on a empty interface value, we need to use type assertion to convert the empty interface to a concrete type
+- Use empty interface only when it's necessary
+```golang
+var empty interface{}
+
+empty = 5
+empty = "Go"
+empty = []int{4, 5, 6}
+
+result := len(empty)         // Error: len takes a concrete type
+result := len(empty.([]int)) // After ype assertion, it works
+
+```
+
+# Concurrency - GoRoutine
+**Check GoRoutine info**
+```golang
+var p = fmt.Println
+p("main execution started")
+p("No. of CPUs:", runtime.NumCPU())                // 8
+p("No. of Gorountines:", runtime.NumGoroutine())   // 1, main count as 1
+
+p("OS:", runtime.GOOS)      // linux
+p("OS:", runtime.GOARCH)    // amd64
+
+// Max num of CPUs that can run simultaneously
+p("GOMAXPROCS:", runtime.GOMAXPROCS(0)) 
+```
+
+**WaitGroups - GoRoutine synchronization**
+- GoRoutines run concurrently with main() and main() doesn't wait for GoRoutines to finish. 
+- WaitGroups can be used so that main() waits for GoRoutines to finish. Otherwise, main() finishes and exits the program before one or more GoRoutines to be able to finish execution.
+- wg.Add()  - Add a GoRoutine in the group
+- wg.Wait() - Wait for waitgroup to finish
+- wg.Done() - Let waitgroup know this routine is done
+```golang
+func f1(wg *sync.WaitGroup) { // wg is passed as a pointer
+	fmt.Println("f1(goroutine) execution started")
+	for i := 0; i < 3; i++ {
+		fmt.Println("f1, i=", i)
+		// sleep for a second to simulate an expensive task.
+		time.Sleep(time.Second)
+
+	}
+	fmt.Println("f1 execution finished")
+	wg.Done() // Tell GoLang that f1() is done
+}
+
+func f2() {
+	fmt.Println("f2 execution started")
+	time.Sleep(time.Second)
+
+	for i := 5; i < 8; i++ {
+		fmt.Println("f2(), i=", i)
+
+	}
+	fmt.Println("f2 execution finished")
+
+}
+
+var p = fmt.Println
+
+func main() {
+	var wg sync.WaitGroup
+	// Need Add() so Golang knows how many go routines
+	// to wait for Done()
+	wg.Add(1)
+	go f1(&wg)
+
+	p("No. of Gorountines:", runtime.NumGoroutine())
+
+	f2()
+	wg.Wait() // wait for waitgroup to finish
+	p("main execution stopped")
+
+}
+```
+
+**Race Condition**
+- 2 or more goRoutines which read/write the same resource could create a race condition if they are not synchronize correctly.
+- Command line flag to detect race condition: **-race** (go run -race main.go)
+
+**Mutex - Concurrency Synchronization**
+- var m sync.Mutex
+- m.Lock()
+- m.Unlock()
+```golang
+func main() {
+
+	const gr = 100
+	var wg sync.WaitGroup
+	wg.Add(gr * 2)
+
+	var shared int = 0 // Declaring a shared value
+
+	var m sync.Mutex   // 1. Declaring a mutex.
+
+	for i := 0; i < gr; i++ {
+		go func() {
+			time.Sleep(time.Second / 10)
+			m.Lock()   // 2. Lock the access to shared
+			shared++
+			m.Unlock() // 3. Unlock shared after it's incremented
+			wg.Done()
+		}()
+
+		go func() {
+			time.Sleep(time.Second / 10)
+			m.Lock()
+			defer m.Unlock()  // Using defer is another option
+			shared--
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	// Printing the final value of shared
+	// The final final of shared will be always 0
+	fmt.Println(shared)
+}
+```
+
+**Channel**
+- Channel is like a pointer
+- Channel is used to both receive and send information
+- Receving channel blocks when it's waiting
+
+***Defining and Initializing a channel***
+```golang
+var ch chan int         // defining a new channel ch (nil)
+ch = make(chan int)     // initialize ch, ch is a pointer type
+
+ch := make(chan int)     // chan that can do both sending & rece 
+ch := make(<- chan int)  // receiving only chan (can't send to ch)
+ch := make(chan <- int)  // sending only chan (can't rece from ch)
+ch := make(chan int 3)   // buffered channel with 3 avail slots
+
+c <- 10     // SEND to channel
+num := <- c // RECEIVE from channel
+
+close(c)    // close channel c
+// NOTE: send to a closed channel will cause a panic
+// NOTE: receive from a closed channel will receive a 0 value
+```
+
+***Simple example***
+```golang
+func wait(n int, ch chan int) {
+	time.Sleep(time.Duration(n) * time.Second)
+	fmt.Printf("Waited %d seconds\n", n)
+	ch <- n
+}
+
+func main() {
+	ch := make(chan int)
+	defer close(ch)
+
+	for i := 5; i > 0; i-- {
+		go wait(i, ch)
+		n := <-ch // waits and blocks
+		fmt.Printf("Main notified. %d seconds wait finished\n", n)
+	}
+}
+
+OUTPUT:
+Waited 5 seconds
+Main notified. 5 seconds wait finished
+Waited 4 seconds
+Main notified. 4 seconds wait finished
+Waited 3 seconds
+Main notified. 3 seconds wait finished
+Waited 2 seconds
+Main notified. 2 seconds wait finished
+Waited 1 seconds
+Main notified. 1 seconds wait finished
+```
+
+**Buffered vs Unbuffered Channels**
+- Unbuffered Channel 
+  - No Capacity (1 in, 1 out, synchronized)
+  - Send to channel: can't send more than 1 item
+  - Rece from channel: blocks when chan is empty or waiting to be filled
+- Buffered Channel
+  - Has Capacity defined
+  - Send to channel: can send until reaches capacity
+  - Rece from channel: blocks when chan is empty or waiting to be filled
+
+**Select Statement - let you wait on multiple channel operations**
+```golang
+func main() {
+
+	c1 := make(chan string)
+	c2 := make(chan string)
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		c1 <- "one"
+	}()
+	go func() {
+		time.Sleep(2 * time.Second)
+		c2 <- "two"
+	}()
+
+	for i := 0; i < 2; i++ {
+		select {     // blocks until it receive from the chan
+		case msg1 := <-c1:
+			fmt.Println("received", msg1)
+		case msg2 := <-c2:
+			fmt.Println("received", msg2)
+		}
+	}
+}
+
+OUTPUT:
+received one
+received two
 ```
