@@ -17,7 +17,7 @@ Create project directory under src.
 # init go module: 
 go mod init
 
-go run main.go \
+go run main.go
 go build -o main.go
 ```
 
@@ -38,26 +38,26 @@ Println - added newline at the end\
 Printf  - no added newline
 
 ```
-%d -> decimal\
-%f -> float\
-%.3f -> float (3 decimal points)\
-%s -> string\
-%q -> double-quoted string\
-%v -> value (any)\
-%#v -> a Go-syntax representation of the value\
-%T -> value Type\
-%t -> bool (true or false)\
-%p -> pointer (address in base 16, with leading 0x)\
-%c -> char (rune) represented by the corresponding Unicode code point
+%d ->   decimal
+%f ->   float
+%.3f -> float (3 decimal points)
+%s ->   string
+%q ->   double-quoted string
+%v ->   value (any)
+%#v ->  a Go-syntax representation of the value
+%T ->   value Type
+%t ->   bool (true or false)
+%p ->   pointer (address in base 16, with leading 0x)
+%c ->   char (rune) represented by the corresponding Unicode code point
 ```
 
 # Convert String to Numbers and vice versa
 ```golang
-String(99)  // c  (ascii)\
-fmt.Sprintf("%f", 44.2) // "44.2000"
+String(99)                // c  (ascii)
+fmt.Sprintf("%f", 44.2)   // "44.2000"
 
 // strconv package from string to Numbers 
-strconv.ParseFloat("3.123", 64) // 3.123 (float) 
+strconv.ParseFloat("3.123", 64)   // 3.123 (float64) 
 
 strconv.Atoi("-50") // -50
 strconf.Itoa(20)    // "20"
@@ -97,19 +97,18 @@ n := m   // n is a copy of m, not a reference
 
 **Comparing arrays:**
 ```golang
-if (n == m) {  // true, same num of elements, order and values
+if (n == m) {  // true if same num of elements, order and values
 
 }
 ```
 
 # Slice
-**Reference type**
-Reference Type
+**Reference type**\
 Slice header:
-  - beginning addr (first element) of the backing array
+  - pointing to beginning addr (first element) of the backing array
   - len of the slice
-  - capacity, len calc. from starting addr of the point 
-    to end of the backing array
+  - capacity, len calc. from starting element 
+    to end element of the backing array
   - when one slice is assigned to another slice s1 := s2, s2's slice header is copied to s1. 
 
 ```golang
@@ -139,6 +138,7 @@ numbers1 = append(numbers1, 4)     // append returns a new slice
 numbers1 = append(numbers1, 5,6,7) // append can take more than 1 value
 n := []int{8,9}
 numbers1 = append(numbers1, n...)  // ellipsis like spread in JS
+                                   // ... turns slice into individual values
 
 E.g. Appending
 s1 := []string{"a","b","c","d","e"}
@@ -147,16 +147,16 @@ s2 = append(s2, s1[0:2]...)         // s2=["a","b"]
 
 E.g. Cutting
 s1 := []int{1,2,3,4,5}
-s2 := s1[0,3]  // s2=[0,1,2]
+s2 := s1[0,3]  // s2=[1,2,3]
 l := len(s2)   // l=3 (the slice has 3 elements)
 c := cap(s2)   // c=5 (backing array has 5 elements)
-//*Note: capacity measured from starting element*
+// *Note: capacity measured from starting element*
 
-E.g. Capacity from starting element
+E.g. Capacity from starting element (looking at slice header)
 s1 := []int{1, 2, 3, 4, 5}  // addr: 0x00 len(s1)=5 cap(s1)=5
-n1 := s1[1:3]     // addr: 0x08 (1*8 bytes) n1=[2,3] len(s1)=2 cap(s1)=4
-n2 := s1[1:4]     // addr: 0x08 (1*8 bytes) n1=[2,3,4] len(s1)=3 cap(s1)=4
-n3 := s1[2:5]     // addr: 0x10 (2*8 bytes) n1=[3,4,5] len(s1)=3 cap(s1)=3
+n1 := s1[1:3]     // addr: 0x08 (1*8 bytes) n1=[2,3] len(n1)=2 cap(n1)=4
+n2 := s1[1:4]     // addr: 0x08 (1*8 bytes) n1=[2,3,4] len(n2)=3 cap(n2)=4
+n3 := s1[2:5]     // addr: 0x10 (2*8 bytes) n1=[3,4,5] len(n3)=3 cap(n3)=3
 ```
 
 **Copy slice:**
@@ -201,21 +201,23 @@ func main() {
 	result2 := result
 	for i := 0; i < maxValue; i++ {
 		if i%2 == 0 {
-			fmt.Printf("appending '%d': %s   %s\n", i, getSliceHeader(&result), getSliceHeader(&result2))
-            // Appending to result, change the len.
-            // Note that len in result2 is NOT changing, even though 
-            // result and result2 are pointing to the same
-            // backing array adress.
+			fmt.Printf("appending '%d': %s   %s\n", i, 
+				getSliceHeader(&result), getSliceHeader(&result2))
+					// Appending to result, change the len.
+					// Note that len in result2 is NOT changing, even though 
+					// result and result2 are pointing to the same
+					// backing array adress.
 			result = append(result, i)
-			fmt.Printf("appended '%d': %s   %s\n", i, getSliceHeader(&result), getSliceHeader(&result2))
+			fmt.Printf("appended '%d': %s   %s\n", i, 
+				getSliceHeader(&result), getSliceHeader(&result2))
 		}
 	}
 
-    // Even though result and result2 are 
-    // pointing to the same backing array adress,
-    // result2 Len remains the same when appending to result.
-    // This explains why result and result2 are different
-    // when they are printed out.
+		// Even though result and result2 are 
+		// pointing to the same backing array adress,
+		// result2 Len remains the same when appending to result.
+		// This explains why result and result2 are different
+		// when they are printed out.
 	fmt.Println(result)
 	fmt.Println(result2)
 }
