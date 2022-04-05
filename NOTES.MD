@@ -1193,3 +1193,226 @@ OUTPUT:
 received one
 received two
 ```
+
+## Files
+**Methods**
+```golang
+// Create a new file
+var newFile *os.File
+newFile, err := os.Create("a.txt")
+
+// Trucate a file
+err = os.Truncate("a.txt", 0)
+
+// Open a file
+file, err := os.Open("a.txt")
+file, err := os.OpenFile("a.txt", os.O_APPEND, 0644)  // option 2
+file, err := os.OpenFile("a.txt", os.O_CREATE | os.O_APPEND, 0644) 
+
+// Write to file
+bytes := []byte("Go Lang")
+bytesWrote, err := file.Write(bytes)
+
+// Write to file using ioutil (WriteFile auto close the file)
+// WriteFile also auto truncates and creates the file if not exists
+err := ioutil.WriteFile("b.txt", bytes, 0644)
+
+// Write to file using Buffered Writer (bufio pkg)
+bWriter := bufio.NewWriter(file)
+bytesWrote, err := bWriter.Write(bytes)
+bytesWrote, err := bWriter.WriteString("Go Lang")
+bWriter.Available()  // buffer size avail in bytes (default 4096)
+bWriter.Buffered()   // num of bytes not flushed to disk yet
+bWriter.Flush()      // flush data to disk (or else not written to disk)
+bWriter.Reset(bWriter) // reset the buffer before flushing to disk
+
+// Read content from file (specify by size to read)
+bytes := make([]byte, 2)  // alloc 2 bytes
+numBytes, err := io.ReadFull(file, bytes)  // only read 2 bytes
+
+// Read all content from file
+data, err := io.ReadAll(file)  // data is string type, not []byte
+
+// Read file (auto close file)
+bytes, err = ioutil.ReadFile("b.txt") // bytes is []byte type
+
+// Close file
+defer file.Close()
+
+// Get file info
+var fileInfo os.FileInfo
+fileInfo, err = os.Stat("a.txt")
+fileInfo.Name()  // file name from the fileInfo
+fileInfo.Size()  // file size from the fileInfo
+fileInfo.IsDir() // is the file a directory?
+fileInfo.Mode()  // file permissions
+os.IsNotExist(err) // Check if file exists
+
+// Rename a file
+err = os.Rename("oldPath.txt", "newPath.txt")
+
+// Remove a file
+err = os.Remove("a.txt")
+```
+
+**Scanner - Read file line by line**
+```golang
+// Read file line-by-line
+scanner := bufio.NewScanner(file)
+ok := scanner.Scan()
+scanner.Text() // first line read from file
+
+// To read entire file line-by-line
+for scanner.Scan() {
+	line := scanner.Text()   // line is string 
+	bytes := scanner.Bytes() // or: bytes is []byte
+	print(line)
+}
+// check scanner error
+if err := scanner.Err(); err != nil {
+	log.Fatal
+}
+
+// To read entire file word-by-word
+scanner.Split(bufio.ScanWords)
+for scanner.Scan() {
+	...
+}
+
+// To read entire file letter-by-letter
+scanner.Split(bufio.ScanRunes)
+for scanner.Scan() {
+	...
+}
+```
+
+**Scanner - Read from user input**
+```golang
+scanner := bufio.NewScanner(os.Stdin)
+scanner.Scan()
+
+text := scanner.Text()    // text is string
+bytes := scanner.Bytes()  // bytes is []byte
+
+// Continuously read from input, until "exit" is entered
+for scanner.Scan() {
+	text = scanner.Text()
+	if text == "exit" {
+		break
+	}
+}
+```
+
+## Go Module and Packages
+Default Go workspace is under ~/go \
+To start with a project, create a directory under src.
+
+```bash
+# To create a module
+mkdir master_go
+cd master_go
+go mod init
+
+# To create a module outside of the GOPATH
+mkdir master_go
+cd master_go
+go mod init master_go  # need to give it a name
+
+# To create a module for github
+mkdir master_go
+cd master_go
+go mod init github.com/bwoo/master_go
+```
+
+Or to create a project with a sub-module:
+```bash
+# To create a sub-module under a project
+mkdir -p project/mymodule1
+cd project/mymodule1
+go mod init
+
+cd ../..
+
+mkdir -p project/mymodule2
+cd project/mymodule2
+go mod init
+
+# Directory structure:
+└── project
+    ├── mymodule1
+    │   ├── go.mod
+    │   ├── main.go
+    │   └── mypackage
+    │       └── foo.go
+    └── mymodule2
+        ├── go.mod
+        └── mypackage2
+            └── bar.go      
+```
+
+**Use a package within the SAME module**
+- just import module1 and package. \
+e.g. projects/mymodule1/main.go:
+
+```golang
+package main
+
+import "project/mymodule1/mypackage"
+
+func main() {
+	mypackage.PrintPkg1()
+```
+
+**Use a package within from a DIFFERENT local module**
+- Step 1: manually add in mymodule1/go.mod:
+```golang
+module project/mymodule1
+
+go 1.18
+
+require "project/mymodule2" v0.0.0
+replace "project/mymodule2" => "../mymodule2"
+```
+- Step 2: import module2 and package:
+```golang
+package main
+
+import (
+	"project/mymodule1/mypackage"
+	"project/mymodule2/mypackage2"
+)
+
+func main() {
+	mypackage.PrintPkg1()
+	mypackage2.PrintPkg2()
+}
+```
+
+**Use a package from GITHUB or other VCS**
+- E.g. https://github.com/ddadumitrescu/hellomod
+- hellomod is the name of the package (also the module name)
+- we import the package in the code
+- run: go get github.com/ddadumitrescu/hellomod
+- hellomod is saved to $GOPATH/pkg/mod/github.com/...
+```golang
+package main
+
+import (
+	"github.com/ddadumitrescu/hellomod"
+)
+
+func main() {
+	hellomod.SayHello()
+	hellomod.Salut()
+}
+```
+
+
+
+
+## Init() function
+- init() runs before main()
+- cannot call init() explicitly
+- can have multiple init() functions
+	- execution of init() according to the order as written in the file
+
