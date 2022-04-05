@@ -203,8 +203,9 @@ func main() {
 		if i%2 == 0 {
 			fmt.Printf("appending '%d': %s   %s\n", i, 
 				getSliceHeader(&result), getSliceHeader(&result2))
-			// Appending to result, change the len.
-			// Note that len in result2 is NOT changing, even though 
+			// Appending to result changes the len.
+			// Note that len in result2 is NOT changing 
+			// (coz result2 has a diff header), even though 
 			// result and result2 are pointing to the same
 			// backing array adress.
 			result = append(result, i)
