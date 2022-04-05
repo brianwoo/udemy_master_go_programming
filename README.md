@@ -196,17 +196,17 @@ a1[1] = 20                  // s1=[1,20], s2=[20,3]
 ```golang
 func main() {
 	maxValue := 20
-	result := make([]int, 0, maxValue)
+	result := make([]int, 0, maxValue) // cap is 20
 	result = append(result, 88)
 	result2 := result
 	for i := 0; i < maxValue; i++ {
 		if i%2 == 0 {
 			fmt.Printf("appending '%d': %s   %s\n", i, 
 				getSliceHeader(&result), getSliceHeader(&result2))
-				// Appending to result, change the len.
-				// Note that len in result2 is NOT changing, even though 
-				// result and result2 are pointing to the same
-				// backing array adress.
+			// Appending to result, change the len.
+			// Note that len in result2 is NOT changing, even though 
+			// result and result2 are pointing to the same
+			// backing array adress.
 			result = append(result, i)
 			fmt.Printf("appended '%d': %s   %s\n", i, 
 				getSliceHeader(&result), getSliceHeader(&result2))
