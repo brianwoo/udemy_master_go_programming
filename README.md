@@ -999,12 +999,15 @@ fmt.Println(empty)           // OK, Println takes interface{}
 ```
 
 # Concurrency - GoRoutine
+- GoRoutines don't use native threads in the kernel. They are managed by the Go Runtime
+- Cheaper than threads
+
 **Check GoRoutine info**
 ```golang
 var p = fmt.Println
 p("main execution started")
 p("No. of CPUs:", runtime.NumCPU())                // 8
-p("No. of Gorountines:", runtime.NumGoroutine())   // 1, main count as 1
+p("No. of Gorountines:", runtime.NumGoroutine())   // 1, main() count as 1
 
 p("OS:", runtime.GOOS)      // linux
 p("OS:", runtime.GOARCH)    // amd64
