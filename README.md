@@ -396,7 +396,7 @@ result := strings.Trim("\t1.2.3! \n", " \t\n") // "1.2.3!"
 - Reference Type
   - Map Header (addr of data structure) --> data structure
   - When a map is assigned to another map (m1 := m2), the header of m2 is copied to m1.
-  - Both map headers point to the same data structure
+  - Both map headers m1 & m2 then point to the same data structure
 - Cannot use Float as a key
 - A Map cannot be compared to another Map. It can only be compared to nil.
 
