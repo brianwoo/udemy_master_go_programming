@@ -999,6 +999,9 @@ fmt.Println(empty)           // OK, Println takes interface{}
 ```
 
 # Concurrency - GoRoutine
+- Concurrency vs Parallelism
+	- Concurrency is all tasks running at the same time but may NOT be simultaneously. Each task takes a small time slice in turn.
+	- Parallelism is all tasks are executing simultaneously (only in multi-core env.)
 - GoRoutines don't use native threads in the kernel. They are managed by the Go Runtime
 - Cheaper than threads
 
