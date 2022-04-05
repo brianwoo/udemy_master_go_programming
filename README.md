@@ -982,7 +982,7 @@ func main() {
 ```
 
 **Empty Interface - an interface that can store any value**
-- it cannot use operations which take a concrete type as an arg to take an empty interface
+- if an operation takes a concrete type as an arg, it can't to take an empty interface (even though an empty interface can be any type)
 - To use an operation on a empty interface value, we need to use type assertion to convert the empty interface to a concrete type
 - Use empty interface only when it's necessary
 ```golang
@@ -993,8 +993,9 @@ empty = "Go"
 empty = []int{4, 5, 6}
 
 result := len(empty)         // Error: len takes a concrete type
-result := len(empty.([]int)) // After ype assertion, it works
+result := len(empty.([]int)) // After type assertion, it works
 
+fmt.Println(empty)           // OK, Println takes interface{}
 ```
 
 # Concurrency - GoRoutine
