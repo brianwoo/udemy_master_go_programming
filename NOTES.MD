@@ -1303,6 +1303,20 @@ for scanner.Scan() {
 }
 ```
 
+
+## Init() function
+- init() runs before main()
+- cannot call init() explicitly
+- can have multiple init() functions
+	- execution of init() according to the order as written in the file
+
+## Command Line Arguments (os.Args)
+- os.Args is type []strings
+- Args[0] is the executable
+- Args[1..N] are the arguments
+
+
+
 ## Go Module and Packages
 Default Go workspace is under ~/go \
 To start with a project, create a directory under src.
@@ -1410,9 +1424,4 @@ func main() {
 
 
 
-## Init() function
-- init() runs before main()
-- cannot call init() explicitly
-- can have multiple init() functions
-	- execution of init() according to the order as written in the file
 
