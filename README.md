@@ -1170,13 +1170,13 @@ Main notified. 1 seconds wait finished
 
 **Buffered vs Unbuffered Channels**
 - Unbuffered Channel 
-  - No Capacity (1 in, 1 out, synchronized)
+  - No extra Capacity (1 in, 1 out, synchronized)
   - Send to channel: can't send more than 1 item
-  - Rece from channel: blocks when chan is empty or waiting to be filled
+  - Receive from channel: blocks when chan is empty or waiting to be filled
 - Buffered Channel
   - Has Capacity defined
   - Send to channel: can send until reaches capacity
-  - Rece from channel: blocks when chan is empty or waiting to be filled
+  - Receive from channel: blocks when chan is empty or waiting to be filled
 
 **Select Statement - let you wait on multiple channel operations**
 ```golang
