@@ -1,4 +1,8 @@
- 
+### *Notes from Course: Master Go (Golang) Programming:The Complete Go Bootcamp 2022* 
+### *- by Andrei Dumitrescu*
+<br/><br/>
+
+
 # Go directory structure:
 ```
 go/src
@@ -1309,13 +1313,13 @@ for scanner.Scan() {
 - cannot call init() explicitly
 - can have multiple init() functions
 	- execution of init() according to the order as written in the file
+<br/><br/>
 
 ## Command Line Arguments (os.Args)
 - os.Args is type []strings
 - Args[0] is the executable
 - Args[1..N] are the arguments
-
-
+<br/><br/>
 
 ## Go Module and Packages
 Default Go workspace is under ~/go \
