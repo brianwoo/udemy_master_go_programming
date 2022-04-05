@@ -857,7 +857,7 @@ func main() {
 ```
 
 **Interfaces**
-- Unlike Java, you don't have to explicitly implement an interface. If a type implements all the interface methods, it's implemented the interface.
+- Unlike Java, you don't have to explicitly have a class implement an interface. If a type implements all the interface methods, this type has  implemented the interface.
 ```golang
 type shape interface {
 	area() float64
@@ -975,8 +975,8 @@ func print(a allFeatures) {}
 
 func main() {
 	var c = circle{radius: 5.0}
-	print(c)     // because we have implemented all allFeatures methods,
-	             // circle can be passed to the print which expects
+	print(c)     // because we have implemented all allFeatures methods 
+	             // for c, c can be passed to print() which expects
 	             // an allFeatures object.
 }
 ```
