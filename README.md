@@ -850,7 +850,7 @@ func main() {
 
 	// With pointer receiver, GoLang is smart enough
 	// to automatically switch from myCar.changeCar() to 
-    // (&myCar).changeCar()
+    	// (&myCar).changeCar()
 	myCar.changeCar("Tesla", 60000)
 	fmt.Println(myCar)
 }
