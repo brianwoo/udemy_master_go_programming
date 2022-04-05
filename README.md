@@ -553,7 +553,8 @@ type s1 struct {
   int
 }
 
-as1 := s1{"xx", 22}        // Error if you do s1{f1:"xx", 22}
+as1 := s1{"xx", 22}        // OK
+as2 := s1{f1:"xx", 22}     // Error: mixture of field:value and value elements in struct
 result := as1.f1           // "xx"
 as1.f1 = "yy"
 ```
