@@ -1353,9 +1353,9 @@ cd master_go
 go mod init github.com/bwoo/master_go
 ```
 
-Or to create a project with a sub-module:
+Or to create a project with sub-modules:
 ```bash
-# To create a sub-module under a project
+# To create sub-modules in a project
 mkdir -p project/mymodule1
 cd project/mymodule1
 go mod init
