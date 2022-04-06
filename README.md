@@ -60,7 +60,7 @@ fmt.Sprintf("%f", 44.2)   // "44.2000"
 strconv.ParseFloat("3.123", 64)   // 3.123 (float64) 
 
 strconv.Atoi("-50") // -50
-strconf.Itoa(20)    // "20"
+strconv.Itoa(20)    // "20"
 ```
 
 # Loops
