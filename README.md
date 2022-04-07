@@ -76,7 +76,7 @@ for {}                               // infinite loop
 
 
 # Arrays
-**Definition**
+**Definition:**
 ```golang
 var myarr [3]string
 myarr := [3]string{}
