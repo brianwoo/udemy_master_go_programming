@@ -76,6 +76,12 @@ for {}                               // infinite loop
 
 
 # Arrays
+**Definition**
+```golang
+var myarr [3]string
+myarr := [3]string{}
+```
+
 **Ellipsis operator:** 
 ```golang
 [...]int[1,2,3,4,5,6]  // Any number of elements
@@ -91,7 +97,7 @@ array := [2][3]int{
 
 **Array are copied when assigned:**
 ```golang
-m := 3[int]{1,2,3}
+m := [3]int{1,2,3}
 n := m   // n is a copy of m, not a reference
 ```
 
