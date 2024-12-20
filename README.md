@@ -165,6 +165,45 @@ n2 := s1[1:4]     // addr: 0x08 (1*8 bytes) n1=[2,3,4] len(n2)=3 cap(n2)=4
 n3 := s1[2:5]     // addr: 0x10 (2*8 bytes) n1=[3,4,5] len(n3)=3 cap(n3)=3
 ```
 
+Appending in a a function
+- Need to pass a slice by reference
+- Or return the slice
+
+```golang
+// Function to append an element to a slice and return it
+func addElement(slice []int, element int) []int {
+    slice = append(slice, element)
+    return slice
+}
+
+func main() {
+    numbers = addElement(numbers, 4)
+}
+```
+```golang
+// Function to append an element to a slice using a pointer
+func addElement(slice *[]int, element int) {
+    *slice = append(*slice, element)
+}
+
+func main() {
+    numbers = addElement(&numbers, 4)  // Pass a pointer to the slice
+}
+```
+  
+```golang
+// Return a slice
+func addElement(slice []int, element int) []int {
+    slice = append(slice, element)
+    return slice
+}
+
+func main() {
+    numbers = addElement(numbers, 4)
+}
+```
+
+
 **Copy slice:**
 ```golang
 src := []int{1,2,3}
