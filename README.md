@@ -191,18 +191,6 @@ func main() {
 }
 ```
   
-```golang
-// Return a slice
-func addElement(slice []int, element int) []int {
-    slice = append(slice, element)
-    return slice
-}
-
-func main() {
-    numbers = addElement(numbers, 4)
-}
-```
-
 
 **Copy slice:**
 ```golang
